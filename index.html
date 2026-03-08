@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cockpit Financier — Entrepreneur</title>
+    <meta name="description"
+        content="Centre de commandement financier pour entrepreneur. Tableau de bord, revenus, dépenses, comptes et activités." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- SIDEBAR NAV -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">💼</div>
+            <div>
+                <div class="logo-title">Cockpit</div>
+                <div class="logo-sub">Financier</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+                <span class="nav-icon">📊</span>
+                <span>Tableau de bord</span>
+            </a>
+            <a href="#" class="nav-item" data-page="revenus" id="nav-revenus">
+                <span class="nav-icon">💰</span>
+                <span>Revenus</span>
+            </a>
+            <a href="#" class="nav-item" data-page="depenses" id="nav-depenses">
+                <span class="nav-icon">💳</span>
+                <span>Dépenses</span>
+            </a>
+            <a href="#" class="nav-item" data-page="comptes" id="nav-comptes">
+                <span class="nav-icon">🏦</span>
+                <span>Comptes</span>
+            </a>
+            <a href="#" class="nav-item" data-page="activites" id="nav-activites">
+                <span class="nav-icon">🚀</span>
+                <span>Activités</span>
+            </a>
+            <div class="nav-separator"></div>
+            <a href="#" class="nav-item" data-page="objectifs" id="nav-objectifs">
+                <span class="nav-icon">🎯</span>
+                <span>Objectifs</span>
+            </a>
+            <a href="#" class="nav-item" data-page="revpotentiels" id="nav-revpotentiels">
+                <span class="nav-icon">💼</span>
+                <span>Rev. Potentiels</span>
+            </a>
+            <a href="#" class="nav-item" data-page="analyse" id="nav-analyse">
+                <span class="nav-icon">🔬</span>
+                <span>Analyse</span>
+            </a>
+            <a href="#" class="nav-item" data-page="simulateur" id="nav-simulateur">
+                <span class="nav-icon">🧮</span>
+                <span>Simulateur</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="sidebar-date" id="sidebar-date"></div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- DASHBOARD PAGE -->
+        <div class="page active" id="page-dashboard">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Tableau de bord financier</h1>
+                    <p class="page-subtitle">Vue d'ensemble de votre situation financière</p>
+                </div>
+                <div class="header-badge" id="health-badge">🟢 Santé financière bonne</div>
+            </div>
+
+            <!-- KPI CARDS -->
+            <div class="kpi-grid">
+                <div class="kpi-card kpi-primary">
+                    <div class="kpi-label">Cash Total</div>
+                    <div class="kpi-value" id="kpi-cash">0 €</div>
+                    <div class="kpi-sub">Tous comptes confondus</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Revenus du mois</div>
+                    <div class="kpi-value kpi-green" id="kpi-revenus">0 €</div>
+                    <div class="kpi-sub" id="kpi-revenus-sub">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Dépenses du mois</div>
+                    <div class="kpi-value kpi-red" id="kpi-depenses">0 €</div>
+                    <div class="kpi-sub" id="kpi-depenses-sub">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Profit du mois</div>
+                    <div class="kpi-value" id="kpi-profit">0 €</div>
+                    <div class="kpi-sub" id="kpi-profit-sub">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Ratio Dép. / Rev.</div>
+                    <div class="kpi-value" id="kpi-ratio">0%</div>
+                    <div class="kpi-sub" id="kpi-ratio-sub">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Runway financier</div>
+                    <div class="kpi-value" id="kpi-runway">∞</div>
+                    <div class="kpi-sub" id="kpi-runway-sub">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Burn Rate</div>
+                    <div class="kpi-value kpi-orange" id="kpi-burn">0 €</div>
+                    <div class="kpi-sub">Dépenses mensuelles</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Taux d'investissement</div>
+                    <div class="kpi-value kpi-blue" id="kpi-invest">0%</div>
+                    <div class="kpi-sub">Investissements / Revenus</div>
+                </div>
+            </div>
+
+            <!-- HEALTH INDICATORS -->
+            <div class="section-title">🩺 Indicateurs de santé</div>
+            <div class="health-grid">
+                <div class="health-card">
+                    <div class="health-label">Profit</div>
+                    <div class="health-bar-wrap">
+                        <div class="health-bar" id="bar-profit"></div>
+                    </div>
+                    <div class="health-status" id="status-profit">—</div>
+                </div>
+                <div class="health-card">
+                    <div class="health-label">Ratio Dépenses</div>
+                    <div class="health-bar-wrap">
+                        <div class="health-bar" id="bar-ratio"></div>
+                    </div>
+                    <div class="health-status" id="status-ratio">—</div>
+                </div>
+                <div class="health-card">
+                    <div class="health-label">Runway</div>
+                    <div class="health-bar-wrap">
+                        <div class="health-bar" id="bar-runway"></div>
+                    </div>
+                    <div class="health-status" id="status-runway">—</div>
+                </div>
+            </div>
+
+            <!-- CHARTS ROW 1 -->
+            <div class="charts-grid-2">
+                <div class="chart-card">
+                    <div class="chart-title">📈 Revenus vs Dépenses (6 derniers mois)</div>
+                    <canvas id="chart-revdep"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">🥧 Répartition des dépenses par catégorie</div>
+                    <canvas id="chart-categories"></canvas>
+                </div>
+            </div>
+
+            <!-- CHARTS ROW 2 -->
+            <div class="charts-grid-3">
+                <div class="chart-card">
+                    <div class="chart-title">📊 Profit mensuel</div>
+                    <canvas id="chart-profit"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">⚖️ Coûts fixes vs Variables</div>
+                    <canvas id="chart-fixvar"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">🏆 Top 5 catégories de dépenses</div>
+                    <canvas id="chart-top5"></canvas>
+                </div>
+            </div>
+
+            <!-- DASHBOARD ROW 2: Nouveaux KPIs -->
+            <div class="section-title" style="margin-top:8px">🔭 Projections &amp; Objectifs</div>
+            <div class="kpi-grid">
+                <div class="kpi-card" style="border-color:#6366f1">
+                    <div class="kpi-label">Progression objectif</div>
+                    <div class="kpi-value kpi-blue" id="kpi-obj-prog">—</div>
+                    <div class="kpi-sub" id="kpi-obj-sub">Aucun objectif défini</div>
+                </div>
+                <div class="kpi-card" style="border-color:#10b981">
+                    <div class="kpi-label">Revenus potentiels</div>
+                    <div class="kpi-value kpi-green" id="kpi-revpot">0 FCFA</div>
+                    <div class="kpi-sub">Pondérés par probabilité</div>
+                </div>
+                <div class="kpi-card" style="border-color:#f59e0b">
+                    <div class="kpi-label">Cash futur estimé</div>
+                    <div class="kpi-value kpi-orange" id="kpi-cashfutur">0 FCFA</div>
+                    <div class="kpi-sub">Cash + rev. attendus − dép.</div>
+                </div>
+                <div class="kpi-card" style="border-color:#8b5cf6">
+                    <div class="kpi-label">Épargne recommandée</div>
+                    <div class="kpi-value" id="kpi-epargne">—</div>
+                    <div class="kpi-sub" id="kpi-epargne-sub">Pour atteindre l'objectif</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVENUS PAGE -->
+        <div class="page" id="page-revenus">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">💰 Base de données — Revenus</h1>
+                    <p class="page-subtitle">Suivez toutes vos entrées d'argent</p>
+                </div>
+                <button class="btn-primary" onclick="openModal('modal-revenu')">+ Ajouter un revenu</button>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table" id="table-revenus">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Source du revenu</th>
+                            <th>Activité / Business</th>
+                            <th>Montant</th>
+                            <th>Compte</th>
+                            <th>Type de revenu</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-revenus"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DEPENSES PAGE -->
+        <div class="page" id="page-depenses">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">💳 Base de données — Dépenses</h1>
+                    <p class="page-subtitle">Analysez où part votre argent</p>
+                </div>
+                <button class="btn-primary" onclick="openModal('modal-depense')">+ Ajouter une dépense</button>
+            </div>
+            <!-- Top 5 summary -->
+            <div class="section-title">🏆 Top 5 catégories du mois</div>
+            <div class="top5-grid" id="top5-cards"></div>
+            <div class="table-wrap">
+                <table class="data-table" id="table-depenses">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Catégorie</th>
+                            <th>Montant</th>
+                            <th>Type</th>
+                            <th>Type de charge</th>
+                            <th>Compte</th>
+                            <th>Poids</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-depenses"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- COMPTES PAGE -->
+        <div class="page" id="page-comptes">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">🏦 Base de données — Comptes</h1>
+                    <p class="page-subtitle">Gérez vos comptes et soldes</p>
+                </div>
+                <button class="btn-primary" onclick="openModal('modal-compte')">+ Ajouter un compte</button>
+            </div>
+            <div class="comptes-summary">
+                <div class="kpi-card kpi-primary" style="max-width:320px">
+                    <div class="kpi-label">Cash total disponible</div>
+                    <div class="kpi-value" id="cash-total-comptes">0 €</div>
+                    <div class="kpi-sub">Somme de tous les comptes</div>
+                </div>
+            </div>
+            <div class="comptes-grid" id="comptes-cards"></div>
+        </div>
+
+        <!-- ACTIVITES PAGE -->
+        <div class="page" id="page-activites">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">🚀 Base de données — Activités</h1>
+                    <p class="page-subtitle">Suivez la rentabilité de chaque activité</p>
+                </div>
+                <button class="btn-primary" onclick="openModal('modal-activite')">+ Ajouter une activité</button>
+            </div>
+            <div class="activites-grid" id="activites-cards"></div>
+        </div>
+
+        <!-- OBJECTIFS PAGE -->
+        <div class="page" id="page-objectifs">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">🎯 Objectifs financiers</h1>
+                    <p class="page-subtitle">Suivez votre progression vers vos objectifs</p>
+                </div>
+                <button class="btn-primary" onclick="openModal('modal-objectif')">+ Ajouter un objectif</button>
+            </div>
+            <div class="objectifs-grid" id="objectifs-cards"></div>
+        </div>
+
+        <!-- REVENUS POTENTIELS PAGE -->
+        <div class="page" id="page-revpotentiels">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">💼 Revenus Potentiels</h1>
+                    <p class="page-subtitle">Trackez vos prospects et contrats en cours</p>
+                </div>
+                <button class="btn-primary" onclick="openModal('modal-revpot')">+ Ajouter un prospect</button>
+            </div>
+            <div class="kpi-grid" style="margin-bottom:24px">
+                <div class="kpi-card kpi-primary">
+                    <div class="kpi-label">Total potentiel brut</div>
+                    <div class="kpi-value" id="revpot-total">0 FCFA</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Revenu attendu pondéré</div>
+                    <div class="kpi-value kpi-green" id="revpot-pondere">0 FCFA</div>
+                    <div class="kpi-sub">Montant × Probabilité</div>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Prestation</th>
+                            <th>Montant pot.</th>
+                            <th>Probabilité</th>
+                            <th>Revenu attendu</th>
+                            <th>Date estimée</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-revpot"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ANALYSE PAGE -->
+        <div class="page" id="page-analyse">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">🔬 Analyse financière</h1>
+                    <p class="page-subtitle">Insights automatiques sur votre situation</p>
+                </div>
+                <button class="btn-secondary" onclick="renderAnalyse()">🔄 Actualiser</button>
+            </div>
+            <div id="analyse-insights"></div>
+            <div class="section-title" style="margin-top:24px">💡 Recommandations</div>
+            <div id="analyse-recommandations"></div>
+        </div>
+
+        <!-- SIMULATEUR PAGE -->
+        <div class="page" id="page-simulateur">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">🧮 Simulateur de décisions financières</h1>
+                    <p class="page-subtitle">Testez l'impact de vos décisions en temps réel</p>
+                </div>
+            </div>
+            <div class="sim-layout">
+                <!-- Panneau paramètres -->
+                <div class="sim-panel">
+                    <div class="sim-panel-title">⚙️ Paramètres de simulation</div>
+                    <div class="sim-field">
+                        <label>Réduction des dépenses (%)</label>
+                        <input type="range" id="sim-dep-reduction" min="0" max="50" value="0" oninput="updateSim()">
+                        <span class="sim-val" id="sim-dep-reduction-val">0%</span>
+                    </div>
+                    <div class="sim-field">
+                        <label>Augmentation des revenus (%)</label>
+                        <input type="range" id="sim-rev-increase" min="0" max="100" value="0" oninput="updateSim()">
+                        <span class="sim-val" id="sim-rev-increase-val">0%</span>
+                    </div>
+                    <div class="sim-field">
+                        <label>Épargne supplémentaire / mois (FCFA)</label>
+                        <input type="number" id="sim-epargne-extra" value="0" min="0" oninput="updateSim()"
+                            placeholder="0">
+                    </div>
+                    <div class="sim-field">
+                        <label>Nouveaux revenus potentiels (FCFA)</label>
+                        <input type="number" id="sim-rev-extra" value="0" min="0" oninput="updateSim()" placeholder="0">
+                    </div>
+                    <div class="sim-results" id="sim-results">
+                        <div class="sim-res-row"><span>Cash futur simulé</span><strong id="sim-r-cash">—</strong></div>
+                        <div class="sim-res-row"><span>Profit mensuel simulé</span><strong id="sim-r-profit">—</strong>
+                        </div>
+                        <div class="sim-res-row"><span>Épargne mensuelle totale</span><strong
+                                id="sim-r-epargne">—</strong></div>
+                        <div class="sim-res-row"><span>Objectif atteint dans</span><strong id="sim-r-obj">—</strong>
+                        </div>
+                    </div>
+                    <div class="sim-scenario" id="sim-optimal"></div>
+                </div>
+                <!-- Charts simulateur -->
+                <div class="sim-charts">
+                    <div class="chart-card">
+                        <div class="chart-title">📈 Projection du cash sur 12 mois</div>
+                        <canvas id="chart-sim-cash"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">🎯 Progression vers l'objectif</div>
+                        <canvas id="chart-sim-obj"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">💹 Impact sur le profit mensuel</div>
+                        <canvas id="chart-sim-profit"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- Assistant financier -->
+            <div class="section-title" style="margin-top:28px">🤖 Assistant financier</div>
+            <div class="assistant-wrap">
+                <div class="assistant-msgs" id="assistant-msgs">
+                    <div class="msg-assistant">Bonjour ! Je suis votre assistant financier. Posez-moi une question sur
+                        votre situation financière.</div>
+                </div>
+                <div class="assistant-input-row">
+                    <input type="text" id="assistant-input" placeholder="Ex: Comment atteindre mon objectif plus vite ?"
+                        onkeydown="if(event.key==='Enter') askAssistant()" />
+                    <button class="btn-primary" onclick="askAssistant()">Envoyer</button>
+                </div>
+                <div class="assistant-suggestions">
+                    <button class="sug-btn"
+                        onclick="askAssistantQ('Comment atteindre mon objectif plus vite ?')">Comment atteindre mon
+                        objectif plus vite ?</button>
+                    <button class="sug-btn"
+                        onclick="askAssistantQ('Que se passe-t-il si je réduis mes dépenses de 15% ?')">Réduire dépenses
+                        de 15% ?</button>
+                    <button class="sug-btn" onclick="askAssistantQ('Quelle est ma situation financière ?')">Situation
+                        financière ?</button>
+                    <button class="sug-btn"
+                        onclick="askAssistantQ('Quel est le meilleur levier pour atteindre mon objectif ?')">Meilleur
+                        levier ?</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODALS -->
+        <!-- Modal Revenu -->
+        <div class="modal-overlay" id="modal-revenu">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Nouveau revenu</h2>
+                    <button class="modal-close" onclick="closeModal('modal-revenu')">✕</button>
+                </div>
+                <form id="form-revenu" onsubmit="saveRevenu(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="rev-date" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Source du revenu</label>
+                            <input type="text" id="rev-source" placeholder="Ex: Contrat client X" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Activité / Business</label>
+                            <select id="rev-activite">
+                                <option value="">— Aucune —</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Montant (FCFA)</label>
+                            <input type="number" id="rev-montant" min="0" step="0.01" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Compte</label>
+                            <select id="rev-compte">
+                                <option value="">— Aucun —</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Type de revenu</label>
+                            <select id="rev-type">
+                                <option value="Revenu actif">Revenu actif</option>
+                                <option value="Revenu passif">Revenu passif</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary"
+                            onclick="closeModal('modal-revenu')">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Dépense -->
+        <div class="modal-overlay" id="modal-depense">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Nouvelle dépense</h2>
+                    <button class="modal-close" onclick="closeModal('modal-depense')">✕</button>
+                </div>
+                <form id="form-depense" onsubmit="saveDepense(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="dep-date" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Catégorie</label>
+                            <select id="dep-categorie" required>
+                                <option value="">— Choisir —</option>
+                                <option>Publicité / Ads</option>
+                                <option>Outils / Logiciels</option>
+                                <option>Freelancers</option>
+                                <option>Nourriture</option>
+                                <option>Transport</option>
+                                <option>Sorties / Divertissement</option>
+                                <option>Éducation / Formation</option>
+                                <option>Abonnements</option>
+                                <option>Équipement</option>
+                                <option>Logement</option>
+                                <option>Famille</option>
+                                <option>Santé</option>
+                                <option>Autres</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Montant (FCFA)</label>
+                            <input type="number" id="dep-montant" min="0" step="0.01" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="dep-type">
+                                <option value="Business">Business</option>
+                                <option value="Personnel">Personnel</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Type de charge</label>
+                            <select id="dep-charge">
+                                <option value="Coût fixe">Coût fixe</option>
+                                <option value="Charge variable">Charge variable</option>
+                                <option value="Investissement">Investissement</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Compte</label>
+                            <select id="dep-compte">
+                                <option value="">— Aucun —</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Notes</label>
+                            <input type="text" id="dep-notes" placeholder="Détails optionnels..." />
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary"
+                            onclick="closeModal('modal-depense')">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Compte -->
+        <div class="modal-overlay" id="modal-compte">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Nouveau compte</h2>
+                    <button class="modal-close" onclick="closeModal('modal-compte')">✕</button>
+                </div>
+                <form id="form-compte" onsubmit="saveCompte(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nom du compte</label>
+                            <input type="text" id="cpt-nom" placeholder="Ex: Banque CIH" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Type de compte</label>
+                            <select id="cpt-type">
+                                <option value="Banque">Banque</option>
+                                <option value="Mobile Money">Mobile Money</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Portefeuille en ligne">Portefeuille en ligne</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Solde (FCFA)</label>
+                            <input type="number" id="cpt-solde" min="0" step="0.01" required />
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary"
+                            onclick="closeModal('modal-compte')">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Activité -->
+        <div class="modal-overlay" id="modal-activite">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Nouvelle activité</h2>
+                    <button class="modal-close" onclick="closeModal('modal-activite')">✕</button>
+                </div>
+                <form id="form-activite" onsubmit="saveActivite(event)">
+                    <div class="form-grid">
+                        <div class="form-group form-full">
+                            <label>Nom de l'activité</label>
+                            <input type="text" id="act-nom" placeholder="Ex: Montage vidéo" required />
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary"
+                            onclick="closeModal('modal-activite')">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Objectif -->
+        <div class="modal-overlay" id="modal-objectif">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Nouvel objectif</h2>
+                    <button class="modal-close" onclick="closeModal('modal-objectif')">✕</button>
+                </div>
+                <form id="form-objectif" onsubmit="saveObjectif(event)">
+                    <div class="form-grid">
+                        <div class="form-group form-full">
+                            <label>Nom de l'objectif</label>
+                            <input type="text" id="obj-nom" placeholder="Ex: Voyage, Fonds d'urgence..." required />
+                        </div>
+                        <div class="form-group">
+                            <label>Montant cible (FCFA)</label>
+                            <input type="number" id="obj-cible" min="0" step="1" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Montant actuel (FCFA)</label>
+                            <input type="number" id="obj-actuel" min="0" step="1" value="0" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Date cible</label>
+                            <input type="date" id="obj-date" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Compte associé</label>
+                            <select id="obj-compte">
+                                <option value="">— Aucun —</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary"
+                            onclick="closeModal('modal-objectif')">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Revenu Potentiel -->
+        <div class="modal-overlay" id="modal-revpot">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Nouveau prospect</h2>
+                    <button class="modal-close" onclick="closeModal('modal-revpot')">✕</button>
+                </div>
+                <form id="form-revpot" onsubmit="saveRevPot(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Client</label>
+                            <input type="text" id="rp-client" placeholder="Nom du client" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Prestation</label>
+                            <input type="text" id="rp-prestation" placeholder="Ex: Montage vidéo" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Montant potentiel (FCFA)</label>
+                            <input type="number" id="rp-montant" min="0" step="1" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Probabilité (%)</label>
+                            <input type="number" id="rp-proba" min="0" max="100" value="50" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Date estimée de paiement</label>
+                            <input type="date" id="rp-date" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Statut</label>
+                            <select id="rp-statut">
+                                <option value="Prospect">Prospect</option>
+                                <option value="Contrat signé">Contrat signé</option>
+                                <option value="Facture envoyée">Facture envoyée</option>
+                                <option value="Payé">Payé</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary"
+                            onclick="closeModal('modal-revpot')">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script src="app.js"></script>
+        <script src="modules.js"></script>
+</body>
+
+</html>
