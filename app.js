@@ -753,6 +753,49 @@ function deleteItem(table, id) {
     if (table === 'activites') renderActivites();
 }
 
+// ─── IMPORT / EXPORT ─────────────────────────────────────────
+function exportData() {
+    const data = JSON.stringify(DB, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `finances_cockpit_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+
+            // Validation basique
+            if (typeof importedData !== 'object' || !importedData.revenus) {
+                throw new Error("Format de fichier invalide.");
+            }
+
+            if (confirm("Voulez-vous vraiment écraser vos données actuelles par celles de ce fichier ? Cette action est irréversible.")) {
+                localStorage.setItem('cockpitFinancier', JSON.stringify(importedData));
+                alert("Données importées avec succès ! L'application va redémarrer.");
+                window.location.reload();
+            }
+        } catch (err) {
+            alert("Erreur lors de l'importation : Le fichier n'est pas un JSON valide ou le format est incorrect.");
+            console.error(err);
+        }
+        // Reset input pour permettre de sélectionner le même fichier à nouveau si besoin
+        event.target.value = '';
+    };
+    reader.readAsText(file);
+}
+
 // ─── HELPERS ─────────────────────────────────────────────────
 function formatDate(str) {
     if (!str) return '—';

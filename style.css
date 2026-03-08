@@ -1239,3 +1239,48 @@ canvas {
     position: static;
   }
 }
+
+/* ===== GESTION DES DONNÉES ===== */
+.data-mgmt-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.data-mgmt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.data-mgmt-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 24px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  transition: transform .2s, border-color .2s;
+}
+
+.data-mgmt-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.data-mgmt-card strong {
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.data-mgmt-card p {
+  font-size: 0.82rem;
+  color: var(--text2);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
