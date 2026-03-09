@@ -124,6 +124,36 @@
                 </div>
             </div>
 
+            <!-- DASHBOARD TODAY SECTION -->
+            <div class="today-section-container">
+                <div class="today-card">
+                    <div class="today-header">
+                        <div class="today-title-wrap">
+                            <span class="today-icon">📅</span>
+                            <h2 class="today-title">Aujourd'hui</h2>
+                        </div>
+                        <div class="today-stats-summary">
+                            <div class="today-stat">
+                                <span class="today-stat-val" id="today-count">0</span>
+                                <span class="today-stat-label">Transactions</span>
+                            </div>
+                            <div class="today-stat">
+                                <span class="today-stat-val today-red" id="today-total">0 FCFA</span>
+                                <span class="today-stat-label">Total Dépenses</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="today-list-container">
+                        <ul class="today-list" id="today-list">
+                            <!-- Les dépenses du jour seront injectées ici -->
+                        </ul>
+                        <div id="today-empty" class="today-empty" style="display: none;">
+                            <p>Aucune dépense aujourd'hui. C'est une bonne journée pour vos finances ! 🚀</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- HEALTH INDICATORS -->
             <div class="section-title">🩺 Indicateurs de santé</div>
             <div class="health-grid">
@@ -737,6 +767,57 @@
                         <button type="submit" class="btn-primary">Enregistrer</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Modal Coach Financier -->
+        <div class="modal-overlay" id="modal-coach">
+            <div class="modal coach-modal">
+                <div class="modal-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.5rem;">🤖</span>
+                        <h2>Analyse du Coach Financier</h2>
+                    </div>
+                    <button class="modal-close" onclick="closeModal('modal-coach')">✕</button>
+                </div>
+                <div class="coach-content">
+                    <div class="coach-alert-card">
+                        <div class="coach-alert-header">
+                            <span class="badge badge-orange">Dépense importante détectée</span>
+                            <strong id="coach-expense-amount" style="font-size: 1.1rem;">0 FCFA</strong>
+                        </div>
+                        <p id="coach-expense-note" style="color: var(--text2); font-size: 0.85rem; margin-top: 5px;"></p>
+                    </div>
+
+                    <div class="section-title" style="margin-top: 20px; border: none;">🔭 Projections si cette dépense se répète</div>
+                    <div class="coach-projection-grid">
+                        <div class="projection-card">
+                            <div class="proj-label">Sur 30 jours</div>
+                            <div class="proj-val" id="proj-30d">0 FCFA</div>
+                        </div>
+                        <div class="projection-card">
+                            <div class="proj-label">Sur 1 an</div>
+                            <div class="proj-val" id="proj-1y">0 FCFA</div>
+                        </div>
+                        <div class="projection-card">
+                            <div class="proj-label">Sur 5 ans</div>
+                            <div class="proj-val" id="proj-5y">0 FCFA</div>
+                        </div>
+                    </div>
+
+                    <div class="reflection-section">
+                        <div class="reflection-card">
+                            <div class="reflection-icon">💡</div>
+                            <div class="reflection-text" id="coach-reflection">
+                                <!-- Message de réflexion injecté ici -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions" style="margin-top: 24px;">
+                        <button class="btn-primary" onclick="closeModal('modal-coach')" style="width: 100%;">Compris, merci coach !</button>
+                    </div>
+                </div>
             </div>
         </div>
 
