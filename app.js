@@ -276,6 +276,61 @@ function renderDashboard() {
     else { badge.textContent = '🔴 Attention requise'; badge.style.borderColor = '#ef4444'; }
 
     renderCharts(mk);
+    renderToday();
+}
+
+// ─── TODAY SECTION LOGIC ────────────────────────────────────
+function renderToday() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayExpenses = DB.depenses.filter(d => d.date === todayStr);
+
+    const countEl = document.getElementById('today-count');
+    const totalEl = document.getElementById('today-total');
+    const listEl = document.getElementById('today-list');
+    const emptyEl = document.getElementById('today-empty');
+
+    if (!countEl || !totalEl || !listEl) return;
+
+    const total = todayExpenses.reduce((sum, d) => sum + d.montant, 0);
+    countEl.textContent = todayExpenses.length;
+    totalEl.textContent = fmt(total);
+
+    const categoryIcons = {
+        'Publicité / Ads': '📣',
+        'Outils / Logiciels': '🛠️',
+        'Freelancers': '👨‍💻',
+        'Nourriture': '🍱',
+        'Transport': '🚗',
+        'Sorties / Divertissement': '🎉',
+        'Éducation / Formation': '📚',
+        'Abonnements': '💳',
+        'Équipement': '💻',
+        'Logement': '🏠',
+        'Famille': '👨‍👩‍👧‍👦',
+        'Santé': '🏥',
+        'Autres': '📦'
+    };
+
+    if (todayExpenses.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+    } else {
+        emptyEl.style.display = 'none';
+        listEl.innerHTML = [...todayExpenses].reverse().map(d => `
+            <li class="today-item">
+                <div class="today-item-left">
+                    <span style="font-size: 1.2rem;">${categoryIcons[d.categorie] || '📦'}</span>
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="today-item-note">${d.notes || d.categorie}</span>
+                        <span class="today-item-cat">${d.categorie}</span>
+                    </div>
+                </div>
+                <div class="today-item-right">
+                    <span class="today-item-amount">${fmt(d.montant)}</span>
+                </div>
+            </li>
+        `).join('');
+    }
 }
 
 function setHealth(name, rawVal, colorFn, labelFn, pctVal) {
@@ -711,8 +766,42 @@ function saveDepense(e) {
         if (idx !== -1) DB.depenses[idx] = { ...DB.depenses[idx], ...data };
     } else {
         DB.depenses.push({ id: uid(), ...data });
+        // Trigger Coach for new high expenses
+        if (data.montant >= 10000) {
+            setTimeout(() => triggerCoach(data), 500);
+        }
     }
     saveDB(); closeModal('modal-depense'); renderDepenses();
+    if (document.getElementById('page-dashboard').classList.contains('active')) {
+        renderDashboard();
+    }
+}
+
+// ─── INTELLIGENT COACH LOGIC ────────────────────────────────
+function triggerCoach(expense) {
+    const amount = expense.montant;
+
+    // Projections
+    document.getElementById('coach-expense-amount').textContent = fmt(amount);
+    document.getElementById('coach-expense-note').textContent = `Pour : ${expense.categorie} (${expense.notes || 'sans note'})`;
+
+    document.getElementById('proj-30d').textContent = fmt(amount * 30);
+    document.getElementById('proj-1y').textContent = fmt(amount * 365);
+    document.getElementById('proj-5y').textContent = fmt(amount * 365 * 5);
+
+    // Reflections
+    const reflections = [
+        "Cette dépense améliore-t-elle réellement ta qualité de vie sur le long terme ?",
+        "Si tu évites cette dépense 3 fois ce mois-ci, tu pourrais investir cet argent dans ton business.",
+        "Est-ce un besoin réel ou une impulsion du moment ?",
+        "Chaque franc économisé aujourd'hui est un soldat qui travaille pour ta liberté demain.",
+        "Le secret de la richesse n'est pas de gagner plus, mais de dépenser moins que ce qu'on gagne.",
+        "Imagine ce que cette somme représenterait si elle était placée avec 10% d'intérêt annuel."
+    ];
+    const randomReflection = reflections[Math.floor(Math.random() * reflections.length)];
+    document.getElementById('coach-reflection').textContent = randomReflection;
+
+    openModal('modal-coach');
 }
 
 function saveCompte(e) {
