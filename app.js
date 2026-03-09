@@ -741,13 +741,24 @@ function saveRevenu(e) {
         compteId: document.getElementById('rev-compte').value,
         type: document.getElementById('rev-type').value
     };
+
     if (editState.revenus) {
         const idx = DB.revenus.findIndex(x => x.id === editState.revenus);
-        if (idx !== -1) DB.revenus[idx] = { ...DB.revenus[idx], ...data };
+        if (idx !== -1) {
+            const old = DB.revenus[idx];
+            const oldCpt = DB.comptes.find(c => c.id === old.compteId);
+            if (oldCpt) oldCpt.solde -= old.montant;
+            DB.revenus[idx] = { ...DB.revenus[idx], ...data };
+        }
     } else {
         DB.revenus.push({ id: uid(), ...data });
     }
+
+    const newCpt = DB.comptes.find(c => c.id === data.compteId);
+    if (newCpt) newCpt.solde += data.montant;
+
     saveDB(); closeModal('modal-revenu'); renderRevenus();
+    if (document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
 }
 
 function saveDepense(e) {
@@ -761,20 +772,27 @@ function saveDepense(e) {
         compteId: document.getElementById('dep-compte').value,
         notes: document.getElementById('dep-notes').value
     };
+
     if (editState.depenses) {
         const idx = DB.depenses.findIndex(x => x.id === editState.depenses);
-        if (idx !== -1) DB.depenses[idx] = { ...DB.depenses[idx], ...data };
+        if (idx !== -1) {
+            const old = DB.depenses[idx];
+            const oldCpt = DB.comptes.find(c => c.id === old.compteId);
+            if (oldCpt) oldCpt.solde += old.montant;
+            DB.depenses[idx] = { ...DB.depenses[idx], ...data };
+        }
     } else {
         DB.depenses.push({ id: uid(), ...data });
-        // Trigger Coach for new high expenses
         if (data.montant >= 10000) {
             setTimeout(() => triggerCoach(data), 500);
         }
     }
+
+    const newCpt = DB.comptes.find(c => c.id === data.compteId);
+    if (newCpt) newCpt.solde -= data.montant;
+
     saveDB(); closeModal('modal-depense'); renderDepenses();
-    if (document.getElementById('page-dashboard').classList.contains('active')) {
-        renderDashboard();
-    }
+    if (document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
 }
 
 // ─── INTELLIGENT COACH LOGIC ────────────────────────────────
@@ -834,12 +852,26 @@ function saveActivite(e) {
 
 function deleteItem(table, id) {
     if (!confirm('Supprimer cet élément ?')) return;
+
+    if (table === 'revenus' || table === 'depenses') {
+        const item = DB[table].find(x => x.id === id);
+        if (item && item.compteId) {
+            const cpt = DB.comptes.find(c => c.id === item.compteId);
+            if (cpt) {
+                if (table === 'revenus') cpt.solde -= item.montant;
+                else cpt.solde += item.montant;
+            }
+        }
+    }
+
     DB[table] = DB[table].filter(item => item.id !== id);
     saveDB();
     if (table === 'revenus') renderRevenus();
     if (table === 'depenses') renderDepenses();
     if (table === 'comptes') renderComptes();
     if (table === 'activites') renderActivites();
+
+    if (document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
 }
 
 // ─── IMPORT / EXPORT ─────────────────────────────────────────
